@@ -1,0 +1,81 @@
+// Prisma schema for Online Mobile Store (PostgreSQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  name         String?
+  role         Role    @default(CUSTOMER)
+  passwordHash String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String
+  slug  String @unique
+  products Product[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  price       Int      // store in minor units (cents)
+  stock       Int      @default(0)
+  images      Json     // array of image URLs (Cloudinary)
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  reviews     Review[]
+  orderItems  OrderItem[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  rating    Int
+  author    String
+  comment   String
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id               String      @id @default(cuid())
+  email            String
+  name             String?
+  amount           Int         // in cents
+  currency         String      @default("usd")
+  stripeSessionId  String      @unique
+  createdAt        DateTime    @default(now())
+  items            OrderItem[]
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id])
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  quantity   Int
+  unitPrice  Int     // in cents
+}
+
+
