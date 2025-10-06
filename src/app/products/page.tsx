@@ -89,18 +89,20 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
           const images = (p.images as unknown as string[]) ?? [];
           const first = images[0];
           return (
-            <li key={p.id} className="border rounded p-4">
-              {first ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={first} alt={p.title} className="w-full h-40 object-cover mb-3 rounded" />
-              ) : (
-                <div className="w-full h-40 bg-gray-100 mb-3 rounded" />
-              )}
-              <h2 className="font-medium mb-1">{p.title}</h2>
-              <p className="text-sm text-gray-600 mb-2">{p.category.name}</p>
-              <div className="flex items-center justify-between">
-                <span className="font-semibold">${(p.price / 100).toFixed(2)}</span>
-                <Link href={`/products/${p.slug}`} className="text-blue-600 hover:underline">View</Link>
+            <li key={p.id} className="rounded-xl overflow-hidden bg-white border shadow-sm hover:shadow-md transition-shadow">
+              <div className="p-4">
+                {first ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={first} alt={p.title} className="w-full h-40 object-cover mb-3 rounded-md" />
+                ) : (
+                  <div className="w-full h-40 bg-gray-100 mb-3 rounded-md" />
+                )}
+                <h2 className="font-medium mb-1">{p.title}</h2>
+                <p className="text-sm text-gray-600 mb-2">{p.category.name}</p>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">${(p.price / 100).toFixed(2)}</span>
+                  <Link href={`/products/${p.slug}`} className="border rounded px-3 py-1.5">View</Link>
+                </div>
               </div>
             </li>
           );

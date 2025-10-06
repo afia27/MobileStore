@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import AddToCartButton from "./AddToCartButton";
 
 async function getProduct(slug: string) {
   const product = await prisma.product.findUnique({
@@ -46,7 +47,13 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <p className="text-gray-600 mb-4">{product.category.name}</p>
           <div className="text-xl font-bold mb-4">${(product.price / 100).toFixed(2)}</div>
           <p className="mb-6 whitespace-pre-line">{product.description}</p>
-          <button className="border rounded px-4 py-2">Add to cart</button>
+          <AddToCartButton
+            productId={product.id}
+            title={product.title}
+            price={product.price}
+            image={images[0]}
+            slug={product.slug}
+          />
         </div>
       </div>
 
