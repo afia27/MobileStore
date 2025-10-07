@@ -1,37 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
-  try {
-    const { items, successUrl, cancelUrl } = await req.json();
-    if (!Array.isArray(items) || items.length === 0) {
-      return NextResponse.json({ error: "No items" }, { status: 400 });
-    }
-
-    type CartItem = { title: string; price: number; quantity: number };
-    const line_items = (items as CartItem[]).map((i) => ({
-      price_data: {
-        currency: "usd",
-        product_data: { name: i.title },
-        unit_amount: i.price,
-      },
-      quantity: i.quantity,
-    }));
-
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items,
-      success_url: successUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
-    });
-
-    return NextResponse.json({ id: session.id, url: session.url });
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ error: "Checkout error" }, { status: 500 });
-  }
+export async function POST() {
+  // Stripe is disabled in this deployment
+  return NextResponse.json({ error: "Stripe disabled" }, { status: 501 });
 }
 
 
