@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
-export async function isAdminFromCookies() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("admin")?.value;
-  return Boolean(process.env.ADMIN_SECRET && token === process.env.ADMIN_SECRET);
+export async function isAdmin() {
+  const session = await getServerSession(authOptions);
+  return Boolean((session as any)?.role === "admin");
 }

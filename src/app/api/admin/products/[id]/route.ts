@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
-function isAuthorized(req: NextRequest) {
-  const cookie = req.headers.get("cookie")?.split(/;\s*/).find((c) => c.startsWith("admin="));
-  const token = cookie?.split("=")[1];
-  return token && process.env.ADMIN_SECRET && token === process.env.ADMIN_SECRET;
-}
+export const runtime = "nodejs"; // ensure NextAuth + Prisma
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await getServerSession(authOptions);
+  if ((session as any)?.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { title, slug, price, stock, description, categoryId, images } = await req.json();
   if (!title || !slug || !categoryId) return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   if (price <= 0) return NextResponse.json({ error: "Price must be positive" }, { status: 400 });
@@ -24,9 +23,18 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  await prisma.product.delete({ where: { id: params.id } });
-  return NextResponse.json({ ok: true });
+  const session = await getServerSession(authOptions);
+  if ((session as any)?.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    await prisma.$transaction([
+      prisma.review.deleteMany({ where: { productId: params.id } }),
+      prisma.orderItem.deleteMany({ where: { productId: params.id } }),
+      prisma.product.delete({ where: { id: params.id } }),
+    ]);
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    return NextResponse.json({ error: "Delete failed", details: String(e?.message || e) }, { status: 500 });
+  }
 }
 
 

@@ -3,33 +3,31 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
+import { Button } from "@/components/ui/button";
 
 export default function UserNavbar() {
   const { data: session } = useSession();
   const { count, totalCents } = useCart();
   return (
-    <nav className="flex items-center gap-3 text-sm">
-      <Link href="/products" className="hover:underline">Products</Link>
-      <Link href="/cart" className="relative hover:underline">
-        Cart
-        {count > 0 && (
-          <span className="ml-1 inline-flex items-center justify-center text-xs bg-black text-white rounded-full px-2 py-0.5">
-            {count}
-          </span>
-        )}
+    <nav className="flex items-center gap-2 text-sm">
+      <Link href="/products"><Button variant="secondary">Products</Button></Link>
+      <Link href="/cart">
+        <Button variant="secondary">
+          Cart
+          {count > 0 && (
+            <span className="ml-2 inline-flex items-center justify-center text-[10px] bg-black text-white rounded-full px-2 py-0.5">
+              {count}
+            </span>
+          )}
+        </Button>
       </Link>
-      <Link href="/cart" className="border rounded px-3 py-1.5 hover:bg-black hover:text-white transition-colors cursor-pointer">Checkout ${(totalCents/100).toFixed(2)}</Link>
-      {session ? (
-        <>
-          <Link href={`/${(session as any).userId}/transactions`} className="hover:underline">My transactions</Link>
-          <button onClick={() => signOut({ callbackUrl: "/" })} className="border rounded px-3 py-1.5 hover:bg-black hover:text-white transition-colors cursor-pointer">Sign out</button>
-        </>
-      ) : (
-        <>
-          <Link href="/user/signin" className="hover:underline">Sign in</Link>
-          <Link href="/user/signup" className="hover:underline">Sign up</Link>
-        </>
+      {session && (
+        <Link href={`/${(session as any).userId}/transactions`}><Button variant="secondary">My transactions</Button></Link>
       )}
+      <Link href="/cart"><Button>Checkout ${(totalCents / 100).toFixed(2)}</Button></Link>
+      {session ? (
+        <Button onClick={() => signOut({ callbackUrl: "/" })} variant="secondary">Sign out</Button>
+      ) : null}
     </nav>
   );
 }

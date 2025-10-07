@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   try {
     const { items, successUrl, cancelUrl } = await req.json();

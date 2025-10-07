@@ -1,10 +1,23 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function CartPage() {
   const { items, setQuantity, removeItem, clear, totalCents } = useCart();
+  const [draftQty, setDraftQty] = React.useState<Record<string, string>>({});
+
+  React.useEffect(() => {
+    // Sync drafts when items change (e.g., after clear or remove)
+    const next: Record<string, string> = {};
+    for (const i of items) next[i.productId] = draftQty[i.productId] ?? String(i.quantity);
+    setDraftQty(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
 
   const checkout = async () => {
     const res = await fetch("/api/checkout", {
@@ -30,17 +43,17 @@ export default function CartPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-semibold mb-6">Your cart</h1>
+      <h1 className="text-2xl font-semibold mb-6 text-stone-100">Your cart</h1>
 
       {items.length === 0 ? (
-        <div className="text-center text-gray-600">
+        <div className="text-center text-stone-400">
           <p>Your cart is empty.</p>
-          <Link href="/products" className="text-blue-600 hover:underline">Browse products</Link>
+          <Link href="/products" className="text-blue-400 hover:underline">Browse products</Link>
         </div>
       ) : (
         <div className="grid gap-4">
           {items.map((i) => (
-            <div key={i.productId} className="rounded-xl border p-4 flex gap-4 items-center bg-white shadow-sm">
+            <Card key={i.productId} className="p-4 flex gap-4 items-center bg-stone-900 text-stone-100 border-stone-800">
               {i.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={i.image} alt={i.title} className="w-20 h-20 object-cover rounded" />
@@ -49,25 +62,36 @@ export default function CartPage() {
               )}
               <div className="flex-1">
                 <div className="font-medium">{i.title}</div>
-                <div className="text-sm text-gray-600">${(i.price / 100).toFixed(2)}</div>
+                <div className="text-sm text-stone-400">${(i.price / 100).toFixed(2)}</div>
               </div>
-              <input
-                type="number"
-                min={1}
-                value={i.quantity}
-                onChange={(e) => setQuantity(i.productId, parseInt(e.target.value || "1", 10))}
-                className="w-16 border rounded px-2 py-1"
+              <Input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={draftQty[i.productId] ?? String(i.quantity)}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D+/g, "");
+                  setDraftQty((prev) => ({ ...prev, [i.productId]: digits }));
+                }}
+                onBlur={() => {
+                  const current = draftQty[i.productId] ?? String(i.quantity);
+                  const parsed = parseInt(current || "0", 10);
+                  const safe = Number.isNaN(parsed) || parsed < 1 ? 1 : parsed;
+                  setQuantity(i.productId, safe);
+                  setDraftQty((prev) => ({ ...prev, [i.productId]: String(safe) }));
+                }}
+                className="w-20"
               />
-              <button className="border rounded px-3 py-1" onClick={() => removeItem(i.productId)}>Remove</button>
-            </div>
+              <Button variant="secondary" onClick={() => removeItem(i.productId)}>Remove</Button>
+            </Card>
           ))}
 
           <div className="flex items-center justify-between mt-4">
-            <div className="text-lg font-semibold">Total: ${ (totalCents / 100).toFixed(2) }</div>
+            <div className="text-lg font-semibold text-stone-100">Total: ${ (totalCents / 100).toFixed(2) }</div>
             <div className="flex gap-2">
-              <button className="border rounded px-4 py-2" onClick={clear}>Clear</button>
-              <button className="border rounded px-4 py-2 bg-black text-white" onClick={checkout}>Stripe Checkout</button>
-              <button className="border rounded px-4 py-2" onClick={demoPay}>Demo Pay</button>
+              <Button variant="secondary" onClick={clear}>Clear</Button>
+              {/* <Button onClick={checkout}>Stripe Checkout</Button> */}
+              <Button variant="secondary" onClick={demoPay}>Stripe Pay</Button>
             </div>
           </div>
         </div>

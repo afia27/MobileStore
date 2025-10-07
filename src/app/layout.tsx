@@ -4,6 +4,7 @@ import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import Header from "@/components/Header";
 import SessionProvider from "@/components/SessionProvider";
+import { ToastProvider } from "@/components/ui/toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,12 +30,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <SessionProvider>
-          <CartProvider>
-            <Header />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <footer className="border-t mt-12 bg-white/60">
+          <ToastProvider>
+            <CartProvider>
+              <Header />
+              <main className="min-h-screen">
+                {children}
+              </main>
+              <footer className="border-t mt-12 bg-white/60">
               <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
                 <div>
                   <div className="font-semibold mb-2">MobileStore</div>
@@ -57,8 +59,9 @@ export default function RootLayout({
                 </div>
               </div>
               <div className="max-w-6xl mx-auto px-4 pb-8 text-xs text-gray-500">© {new Date().getFullYear()} MobileStore</div>
-            </footer>
-          </CartProvider>
+              </footer>
+            </CartProvider>
+          </ToastProvider>
         </SessionProvider>
       </body>
     </html>

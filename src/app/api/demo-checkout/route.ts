@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { ObjectId } from "mongodb";
 
+export const runtime = "nodejs";
+
 type CartItem = { productId: string; quantity: number; price: number };
 
 export async function POST(req: NextRequest) {

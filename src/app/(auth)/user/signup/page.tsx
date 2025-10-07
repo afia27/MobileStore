@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function UserSignup() {
   const [name, setName] = useState("");
@@ -23,14 +25,14 @@ export default function UserSignup() {
 
   return (
     <div className="max-w-sm mx-auto px-4 py-16">
-      <h1 className="text-2xl font-semibold mb-4">Create account</h1>
-      <form className="grid gap-3" onSubmit={onSubmit}>
-        <input className="border rounded px-3 py-2" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-        <input className="border rounded px-3 py-2" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="border rounded px-3 py-2" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        <button className="border rounded px-4 py-2">Sign up</button>
-        {ok && <p className="text-green-600 text-sm">Account created. You can now sign in.</p>}
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+      <h1 className="text-2xl font-semibold mb-4 text-stone-100">Create account</h1>
+      <form className="grid gap-3 bg-stone-900 border border-stone-800 rounded-xl p-5" onSubmit={onSubmit}>
+        <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <Button type="submit">Sign up</Button>
+        {ok && <p className="text-green-500 text-sm">Account created. You can now sign in.</p>}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
       </form>
     </div>
   );

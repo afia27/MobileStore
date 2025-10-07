@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
-function isAuthorized(req: NextRequest) {
-  const cookie = req.headers.get("cookie")?.split(/;\s*/).find((c) => c.startsWith("admin="));
-  const token = cookie?.split("=")[1];
-  return token && process.env.ADMIN_SECRET && token === process.env.ADMIN_SECRET;
-}
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await getServerSession(authOptions);
+  if ((session as any)?.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await req.json();
   const { title, slug, price, stock, description, categoryId, images } = body;
   if (!title || !slug || !categoryId) return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
