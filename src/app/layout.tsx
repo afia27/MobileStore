@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import Header from "@/components/Header";
+import SessionProvider from "@/components/SessionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,15 +28,38 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <CartProvider>
-          <Header />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <footer className="border-t mt-12">
-            <div className="max-w-6xl mx-auto px-4 py-6 text-sm text-gray-500">© {new Date().getFullYear()} MobileStore</div>
-          </footer>
-        </CartProvider>
+        <SessionProvider>
+          <CartProvider>
+            <Header />
+            <main className="min-h-screen">
+              {children}
+            </main>
+            <footer className="border-t mt-12 bg-white/60">
+              <div className="max-w-6xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                <div>
+                  <div className="font-semibold mb-2">MobileStore</div>
+                  <p className="text-gray-600">Your trusted destination for the latest smartphones.</p>
+                </div>
+                <div>
+                  <div className="font-semibold mb-2">Links</div>
+                  <ul className="space-y-1 text-gray-600">
+                    <li><a href="/products" className="hover:underline">Products</a></li>
+                    <li><a href="/user/signin" className="hover:underline">Sign in</a></li>
+                    <li><a href="/user/signup" className="hover:underline">Sign up</a></li>
+                  </ul>
+                </div>
+                <div>
+                  <div className="font-semibold mb-2">Contact</div>
+                  <ul className="space-y-1 text-gray-600">
+                    <li>Email: support@example.com</li>
+                    <li>Hours: Mon–Fri 9am–6pm</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="max-w-6xl mx-auto px-4 pb-8 text-xs text-gray-500">© {new Date().getFullYear()} MobileStore</div>
+            </footer>
+          </CartProvider>
+        </SessionProvider>
       </body>
     </html>
   );

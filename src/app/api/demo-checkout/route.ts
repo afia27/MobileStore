@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getDb } from "@/lib/mongodb";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+import { ObjectId } from "mongodb";
 
 type CartItem = { productId: string; quantity: number; price: number };
 
@@ -14,33 +17,24 @@ export async function POST(req: NextRequest) {
 
     const amount = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-    // Transaction: create order and items (no stock decrement in demo mode)
-    const order = await prisma.$transaction(async (tx) => {
-      const o = await tx.order.create({
-        data: {
-          email: email ?? "demo@example.com",
-          name: name ?? "Demo Customer",
-          amount,
-          currency: "usd",
-          stripeSessionId: `demo_${Date.now()}`,
-        },
-      });
-
-      for (const i of items) {
-        await tx.orderItem.create({
-          data: {
-            orderId: o.id,
-            productId: i.productId,
-            quantity: i.quantity,
-            unitPrice: i.price,
-          },
-        });
-      }
-
-      return o;
+    // Create order directly in MongoDB (demo mode source of truth)
+    const session = await getServerSession(authOptions);
+    const db = await getDb();
+    const orderId = new ObjectId();
+    await db.collection("transactions").insertOne({
+      _id: orderId,
+      orderId: String(orderId),
+      userId: (session as any)?.userId ?? null,
+      email: session?.user?.email ?? email ?? null,
+      name: (session as any)?.name ?? name ?? null,
+      items,
+      amount,
+      currency: "usd",
+      source: "demo",
+      createdAt: new Date(),
     });
 
-    return NextResponse.json({ orderId: order.id, success: true });
+    return NextResponse.json({ orderId: String(orderId), success: true });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "Demo checkout failed" }, { status: 500 });

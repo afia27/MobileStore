@@ -67,17 +67,17 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
           name="q"
           defaultValue={searchParams.q ?? ""}
           placeholder="Search..."
-          className="border rounded px-3 py-2"
+          className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
         />
-        <select name="category" defaultValue={searchParams.category ?? ""} className="border rounded px-3 py-2">
+        <select name="category" defaultValue={searchParams.category ?? ""} className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black">
           <option value="">All categories</option>
           {categories.map((c: { id: string; slug: string; name: string }) => (
             <option key={c.id} value={c.slug}>{c.name}</option>
           ))}
         </select>
-        <input name="min" defaultValue={searchParams.min ?? ""} placeholder="Min price (cents)" className="border rounded px-3 py-2" />
-        <input name="max" defaultValue={searchParams.max ?? ""} placeholder="Max price (cents)" className="border rounded px-3 py-2" />
-        <button type="submit" className="border rounded px-4 py-2 md:col-span-4">Apply</button>
+        <input name="min" defaultValue={searchParams.min ?? ""} placeholder="Min price (cents)" className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" />
+        <input name="max" defaultValue={searchParams.max ?? ""} placeholder="Max price (cents)" className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" />
+        <button type="submit" className="border rounded px-4 py-2 md:col-span-4 hover:bg-black hover:text-white transition-colors cursor-pointer">Apply</button>
       </form>
 
       {products.length === 0 && (
@@ -101,7 +101,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
                 <p className="text-sm text-gray-600 mb-2">{p.category.name}</p>
                 <div className="flex items-center justify-between">
                   <span className="font-semibold">${(p.price / 100).toFixed(2)}</span>
-                  <Link href={`/products/${p.slug}`} className="border rounded px-3 py-1.5">View</Link>
+                  <Link href={`/products/${p.slug}`} className="border rounded px-3 py-1.5 hover:bg-black hover:text-white transition-colors cursor-pointer">View</Link>
                 </div>
               </div>
             </li>
