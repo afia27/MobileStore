@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No items" }, { status: 400 });
     }
 
-    const line_items = items.map((i: any) => ({
+    type CartItem = { title: string; price: number; quantity: number };
+    const line_items = (items as CartItem[]).map((i) => ({
       price_data: {
         currency: "usd",
         product_data: { name: i.title },

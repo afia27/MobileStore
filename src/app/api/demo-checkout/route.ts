@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
     await db.collection("transactions").insertOne({
       _id: orderId,
       orderId: String(orderId),
-      userId: (session as any)?.userId ?? null,
+      userId: ((session as unknown) as { userId?: string })?.userId ?? null,
       email: session?.user?.email ?? email ?? null,
-      name: (session as any)?.name ?? name ?? null,
+      name: ((session as unknown) as { name?: string })?.name ?? name ?? null,
       items,
       amount,
       currency: "usd",

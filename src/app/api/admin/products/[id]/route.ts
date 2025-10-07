@@ -7,7 +7,8 @@ export const runtime = "nodejs"; // ensure NextAuth + Prisma
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  if ((session as any)?.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const role = (session as unknown as { role?: string })?.role;
+  if (role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { title, slug, price, stock, description, categoryId, images } = await req.json();
   if (!title || !slug || !categoryId) return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   if (price <= 0) return NextResponse.json({ error: "Price must be positive" }, { status: 400 });
@@ -32,8 +33,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       prisma.product.delete({ where: { id: params.id } }),
     ]);
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    return NextResponse.json({ error: "Delete failed", details: String(e?.message || e) }, { status: 500 });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: "Delete failed", details: msg }, { status: 500 });
   }
 }
 

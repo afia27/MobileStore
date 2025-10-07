@@ -15,7 +15,12 @@ export async function GET(req: NextRequest) {
   const page = Number.isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
   const pageSize = Number.isNaN(pageSizeParam) || pageSizeParam < 1 ? 12 : Math.min(pageSizeParam, 50);
 
-  const where: any = {};
+  type Where = {
+    OR?: Array<{ title?: any; description?: any }>;
+    category?: { slug: string };
+    price?: { gte?: number; lte?: number };
+  };
+  const where: Where = {};
   if (q) {
     where.OR = [
       { title: { contains: q, mode: "insensitive" } },
@@ -25,7 +30,7 @@ export async function GET(req: NextRequest) {
   if (category) {
     where.category = { slug: category };
   }
-  const priceFilter: any = {};
+  const priceFilter: { gte?: number; lte?: number } = {};
   if (min) {
     const n = parseInt(min, 10);
     if (!Number.isNaN(n)) priceFilter.gte = n;

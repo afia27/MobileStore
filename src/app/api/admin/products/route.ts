@@ -7,7 +7,8 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if ((session as any)?.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const role = (session as unknown as { role?: string })?.role;
+  if (role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await req.json();
   const { title, slug, price, stock, description, categoryId, images } = body;
   if (!title || !slug || !categoryId) return NextResponse.json({ error: "Missing required fields" }, { status: 400 });

@@ -8,7 +8,18 @@ import { Button } from "@/components/ui/button";
 
 type Category = { id: string; name: string };
 
-export default function ProductForm({ categories, product }: { categories: Category[]; product?: any }) {
+type ProductLike = {
+  id: string;
+  title: string;
+  slug: string;
+  price: number;
+  stock: number;
+  description: string;
+  categoryId: string;
+  images: string[];
+};
+
+export default function ProductForm({ categories, product }: { categories: Category[]; product?: ProductLike }) {
   const [title, setTitle] = useState(product?.title ?? "");
   const [slug, setSlug] = useState(product?.slug ?? "");
   // store dollars in UI, convert to cents on submit

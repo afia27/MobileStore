@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import DeleteProductButton from "./DeleteProductButton";
-import SignOutButton from "./SignOutButton";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,8 @@ import { Card } from "@/components/ui/card";
 
 export default async function AdminProducts() {
   const session = await getServerSession(authOptions);
-  if ((session as any)?.role !== "admin") {
+  const role = (session as unknown as { role?: string })?.role;
+  if (role !== "admin") {
     return <div className="max-w-6xl mx-auto px-4 py-8">Unauthorized</div>;
   }
   const products = await prisma.product.findMany({ include: { category: true }, orderBy: { createdAt: "desc" } });
